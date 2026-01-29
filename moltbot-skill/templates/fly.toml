@@ -1,6 +1,3 @@
-# Moltbot Fly.io Configuration
-# Replace 'your-app-name' with your actual app name
-
 app = 'your-app-name'
 primary_region = 'iad'
 
@@ -9,43 +6,25 @@ primary_region = 'iad'
 
 [env]
   NODE_ENV = 'production'
-  TZ = 'UTC'
+  CLAWDBOT_PREFER_PNPM = '1'
+  CLAWDBOT_STATE_DIR = '/data'
+  NODE_OPTIONS = '--max-old-space-size=1536'
 
-# CRITICAL: Use --bind lan, NOT --bind 0.0.0.0
-# Valid values: loopback, lan, tailnet, auto, custom
 [processes]
   app = "node dist/index.js gateway --allow-unconfigured --port 3000 --bind lan"
 
-# Persistent volume for config and data
-[[mounts]]
-  source = 'moltbot_data'
-  destination = '/data'
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
 
-# VM size - adjust based on your needs
 [[vm]]
   size = 'shared-cpu-2x'
-  memory = '2gb'
+  memory = '2048mb'
 
-# HTTP service configuration
-[[services]]
-  internal_port = 3000
-  protocol = 'tcp'
-
-  [[services.ports]]
-    handlers = ['http']
-    port = 80
-    force_https = true
-
-  [[services.ports]]
-    handlers = ['tls', 'http']
-    port = 443
-
-# Optional: Health check
-# Note: Moltbot takes ~60s to start, so set a generous interval
-# [http_service.checks]
-#   [http_service.checks.health]
-#     interval = "30s"
-#     timeout = "5s"
-#     grace_period = "90s"
-#     method = "GET"
-#     path = "/__health"
+[mounts]
+  source = 'moltbot_data'
+  destination = '/data'

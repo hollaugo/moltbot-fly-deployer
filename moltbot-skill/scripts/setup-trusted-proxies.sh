@@ -1,56 +1,42 @@
 #!/bin/bash
-# Configure trusted proxies for Moltbot on Fly.io
-# Usage: ./setup-trusted-proxies.sh <app-name> [additional-ip]
+# Configure trusted proxies for Fly.io internal network
 
-set -euo pipefail
+set -e
 
-APP_NAME="${1:-}"
-ADDITIONAL_IP="${2:-}"
-
-if [ -z "$APP_NAME" ]; then
-  echo "Usage: $0 <app-name> [additional-ip]"
-  echo "Example: $0 my-moltbot-app"
-  echo "Example: $0 my-moltbot-app 172.16.3.162"
+if [ -z "$1" ]; then
+  echo "Usage: $0 <app-name>"
+  echo "Example: $0 my-moltbot"
   exit 1
 fi
 
-echo "Setting up trusted proxies for $APP_NAME..."
+APP_NAME="$1"
 
-# Build the node command
-if [ -n "$ADDITIONAL_IP" ]; then
-  EXTRA_IP=", \"$ADDITIONAL_IP\""
-else
-  EXTRA_IP=""
-fi
+echo "Configuring trusted proxies for $APP_NAME..."
 
-fly ssh console -a "$APP_NAME" -C "node -e \"
-const fs = require('fs');
-const configPath = '/data/moltbot.json';
+flyctl ssh console -a "$APP_NAME" -C 'node -e "
+const fs = require(\"fs\");
+const configPath = \"/data/moltbot.json\";
 let config = {};
 
 try {
   config = JSON.parse(fs.readFileSync(configPath));
 } catch (e) {
-  console.log('Creating new config...');
+  console.log(\"⚠️  Config file not found, creating new one\");
 }
 
 config.gateway = config.gateway || {};
 config.gateway.trustedProxies = [
-  '172.16.0.0/12',
-  '10.0.0.0/8'$EXTRA_IP
+  \"172.16.0.0/12\",
+  \"10.0.0.0/8\"
 ];
-config.gateway.mode = 'local';
-config.gateway.bind = 'lan';
 
 fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-console.log('Trusted proxies configured:');
-console.log(JSON.stringify(config.gateway.trustedProxies, null, 2));
-\""
+console.log(\"✅ Trusted proxies configured\");
+console.log(\"   - 172.16.0.0/12 (Fly internal)\");
+console.log(\"   - 10.0.0.0/8 (Private networks)\");
+"'
 
 echo ""
-echo "Restarting machine to apply changes..."
-fly machines restart -a "$APP_NAME"
-
-echo ""
-echo "Done! Wait ~60 seconds for the gateway to start."
-echo "Check logs with: fly logs -a $APP_NAME --no-tail | tail -30"
+echo "Done! Restart the machine to apply changes:"
+echo "  fly machines list -a $APP_NAME"
+echo "  fly machine restart <machine-id> -a $APP_NAME"

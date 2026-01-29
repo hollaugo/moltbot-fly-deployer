@@ -1,60 +1,33 @@
 {
-  "meta": {
-    "lastTouchedVersion": "2026.1.27-beta.1"
-  },
-  "auth": {
-    "profiles": {
-      "anthropic:default": { "provider": "anthropic", "mode": "token" },
-      "openai:default": { "provider": "openai", "mode": "token" }
+  "gateway": {
+    "mode": "local",
+    "bind": "lan",
+    "auth": {
+      "mode": "token",
+      "token": "YOUR-TOKEN-HERE"
     }
   },
   "agents": {
     "defaults": {
       "model": {
-        "primary": "anthropic/claude-sonnet-4-5",
-        "fallbacks": ["anthropic/claude-sonnet-4-5", "openai/gpt-4o"]
+        "primary": "anthropic/claude-opus-4-5"
       },
       "maxConcurrent": 4
-    },
-    "list": [
-      {
-        "id": "main",
-        "default": true
-      }
-    ]
-  },
-  "bindings": [
-    {
-      "agentId": "main",
-      "match": { "channel": "discord" }
     }
-  ],
-  "channels": {
-    "discord": {
-      "enabled": true,
-      "groupPolicy": "allowlist",
-      "guilds": {
-        "YOUR_GUILD_ID": {
-          "requireMention": false,
-          "channels": {
-            "general": { "allow": true }
-          }
-        }
+  },
+  "auth": {
+    "profiles": {
+      "anthropic:default": {
+        "mode": "token",
+        "provider": "anthropic"
+      },
+      "openai:default": {
+        "mode": "token",
+        "provider": "openai"
       }
     }
   },
-  "gateway": {
-    "mode": "local",
-    "bind": "lan",
-    "trustedProxies": [
-      "172.16.0.0/12",
-      "10.0.0.0/8"
-    ]
-  },
-  "plugins": {
-    "entries": {
-      "discord": { "enabled": true },
-      "slack": { "enabled": true }
-    }
+  "meta": {
+    "lastTouchedVersion": "2026.1.29"
   }
 }
