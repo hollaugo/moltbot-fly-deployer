@@ -1,0 +1,8 @@
+{
+  "name": "moltbot-fly-deployer",
+  "version": "1.0.0",
+  "description": "Deploy Moltbot (Clawdbot) to Fly.io with proper proxy configuration and device pairing",
+  "author": "Prompt Circle",
+  "homepage": "https://github.com/hollaugo/moltbot-fly-deployer",
+  "skills": ["skills"]
+}
